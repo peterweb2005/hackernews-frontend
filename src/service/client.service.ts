@@ -30,7 +30,6 @@ const client = new ApolloClient({
   cache: new InMemoryCache(),
 });
 
-
 export default class ClientService {
   async getPosts(opts: Options): Promise<Post[]> {
     console.log('getPosts()');
