@@ -2,24 +2,15 @@ import React from 'react';
 import { AppBar, Button, Toolbar } from '@material-ui/core';
 import { Theme, createStyles, makeStyles, withStyles } from '@material-ui/core/styles';
 import { ToggleButton, ToggleButtonGroup } from '@material-ui/lab';
+import { useObserver } from "mobx-react-lite";
 import List from './List';
+import { Store } from './Store';
 import { Title, SubTitle, SelectContainer } from '../Styled';
 import { Options, Sort, FilterType } from '../data/index';
 
-// ENHANCE values mirrored (duplicated)
-// inputs need event to read / write seems redundant
-//let page: number = 1;
-//let filterType: string = 'ge';
-//let filterAmount: number = 100;
-//let sort: string = 'asc';
-const options: Options = {
-  page: 1,
-  filter: {
-    type: FilterType.ge,
-    amount: 100,
-  },
-  sort: Sort.asc,
-};
+const store = new Store();
+
+export { store };
 
 const StyledToggleButtonGroup = withStyles((theme: Theme) => ({
   grouped: {
@@ -34,39 +25,36 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 function PageSelect() {
-  const [value, setValue] = React.useState<number>(options.page as number);
   const onChange = (event: any) => {
-    options.page = Number(event.target.value);
-    setValue(options.page);
+    store.options.page = Number(event.target.value);
   }
-  return (
+  return useObserver(() => (
     <SelectContainer>
       <SubTitle color="inherit">
         Page
       </SubTitle>
-      <input type="number" min="1" value={value} onChange={onChange} />
+      <input type="number" min="1" value={store.options.page} onChange={onChange} />
     </SelectContainer>
-  );
+  ));
 }
 
 function FilterSelect() {
-  const [type, setType] = React.useState<FilterType>(options.filter?.type as FilterType);
-  const [amount, setAmount] = React.useState<number>(options.filter?.amount as number);
   const onTypeChange = (event: any, value: FilterType) => {
-    if (options.filter) options.filter.type = FilterType[value];
-    setType(value);
+    if (store.options.filter) store.options.filter.type = value;
   }
   const onAmountChange = (event: any) => {
-    if (options.filter) options.filter.amount = Number(event.target.value);
-    if (options.filter) setAmount(options.filter.amount);
+    const value = Number(event.target.value);
+    if (store.options.filter) {
+      store.options.filter.amount = value;
+    }
   }
-  return (
+  return useObserver(() => (
     <SelectContainer>
       <SubTitle color="inherit">
         Filter
       </SubTitle>
       <StyledToggleButtonGroup
-        value={type}
+        value={store.options.filter?.type}
         exclusive
         aria-label="filter"
         onChange={onTypeChange}
@@ -87,24 +75,22 @@ function FilterSelect() {
           {'<'}
         </ToggleButton>
       </StyledToggleButtonGroup>
-      <input type="number" min="0" value={amount} onChange={onAmountChange} />
+      <input type="number" min="0" value={store.options.filter?.amount} onChange={onAmountChange} />
     </SelectContainer>
-  );
+  ));
 }
 
 function SortSelect() {
-  const [value, setValue] = React.useState<Sort>(options.sort as Sort);
   const onChange = (event: any, value: Sort) => {
-    options.sort = Sort[value];
-    setValue(value);
+    if (store.options.sort) store.options.sort = value;
   }
-  return (
+  return useObserver(() => (
     <SelectContainer>
       <SubTitle color="inherit">
         Sort
       </SubTitle>
       <StyledToggleButtonGroup
-        value={value}
+        value={store.options.sort}
         exclusive
         aria-label="sort"
         onChange={onChange}
@@ -117,24 +103,27 @@ function SortSelect() {
         </ToggleButton>
       </StyledToggleButtonGroup>
     </SelectContainer>
-  );
+  ));
 }
 
 export default function Home() {
 
-  const [date, setDate] = React.useState<any>(Date.now());
-
   const onClick = () => {
     console.log('onClick()');
-    /*console.log('page: ', page);
-    console.log('filterType: ', filterType);
-    console.log('filterAmount: ', filterAmount);
-    console.log('sort: ', sort);*/
-    console.log('options: ', options);
-    setDate(Date.now());
+    console.log('store.options: ', store.options);
+    store.updateItems();
   };
 
   const classes = useStyles();
+
+  React.useEffect(
+    () => {
+      (async () => {
+        store.updateItems();
+      })();
+    },
+    [],
+  );
 
   return (
     <React.Fragment>
@@ -156,7 +145,7 @@ export default function Home() {
           </Button>
         </Toolbar>
       </AppBar>
-      <List options={options} />
+      <List />
     </React.Fragment >
   );
 }

@@ -1,41 +1,23 @@
 import React from 'react';
+import { useObserver } from "mobx-react-lite";
 import ListItem from './ListItem';
-import { clientService, dataService } from '../index';
-import { Options } from '../data';
+import { store } from './index';
 import { Post } from '../data/post';
 
-export interface ListProps {
-  options: Options;
-}
-
-export default function List(props: ListProps) {
+export default function List() {
   console.log('List()');
-  console.log('props: ', props);
+  return useObserver(() => {
 
-  const options: Options = props?.options;
+    const items = store.items;
 
-  const [items, setItems] = React.useState<Post[]>([]);
+    const listItems = items.map((item: Post) =>
+      <ListItem key={item.id} item={item} />
+    );
 
-  React.useEffect(
-    () => {
-      (async () => {
-        // temp local
-        //const items: Post[] = await dataService.getPosts();
-
-        const items: Post[] = await clientService.getPosts(options);
-        setItems(items);
-      })();
-    },
-    [props],
-  );
-
-  const listItems = items.map((item: Post) =>
-    <ListItem key={item.id} item={item} />
-  );
-
-  return (
-    <ul>
-      {listItems}
-    </ul>
-  );
+    return (
+      <ul>
+        {listItems}
+      </ul>
+    );
+  });
 }
