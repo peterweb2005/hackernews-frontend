@@ -6,6 +6,9 @@ import { clientService, dataService } from '../index';
 export class Store {
 
   @observable
+  progress: boolean = false;
+
+  @observable
   options: Options = {
     page: 1,
     filter: {
@@ -20,9 +23,15 @@ export class Store {
 
   @action
   async updateItems() {
+
+    this.progress = true;
+
     const items: Post[] = await clientService.getPosts(this.options);
+
+    this.progress = false;
+
     //runInAction(() => {
-      this.items = items;
+    this.items = items;
     //});
   }
 }

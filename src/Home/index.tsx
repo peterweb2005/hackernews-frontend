@@ -1,5 +1,5 @@
 import React from 'react';
-import { AppBar, Button, Toolbar } from '@material-ui/core';
+import { AppBar, Button, CircularProgress, Toolbar } from '@material-ui/core';
 import { Theme, createStyles, makeStyles, withStyles } from '@material-ui/core/styles';
 import { ToggleButton, ToggleButtonGroup } from '@material-ui/lab';
 import { useObserver } from "mobx-react-lite";
@@ -20,9 +20,30 @@ const StyledToggleButtonGroup = withStyles((theme: Theme) => ({
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
+    container: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    center: {
+      margin: 'auto'
+    },
     toolbar: theme.mixins.toolbar,
   }),
 );
+
+function Progress() {
+
+  const classes = useStyles();
+
+  return useObserver(() => {
+    if (store.progress) {
+      return <CircularProgress className={classes.center} />;
+    } else {
+      return null;
+    }
+  });
+}
 
 function PageSelect() {
   const onChange = (event: any) => {
@@ -145,6 +166,9 @@ export default function Home() {
           </Button>
         </Toolbar>
       </AppBar>
+      <div className={classes.container}>
+        <Progress />
+      </div>
       <List />
     </React.Fragment >
   );

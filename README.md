@@ -21,7 +21,9 @@ yarn start
 
 ## ENHANCE
 
-- bootstrap
-- display posts content in card
-- removed duplicate var definition in /Home/index
-- removed Date.now() to trigger update view in /Home/index
+- material bootstrap
+- display posts content in card (need server api)
+x- removed duplicate var definition in /Home/index
+x- removed Date.now() to trigger update view in /Home/index
+x- use mobx to minimize "state change" codes
+x- progress bar
