@@ -4,13 +4,22 @@ import { Theme, createStyles, makeStyles, withStyles } from '@material-ui/core/s
 import { ToggleButton, ToggleButtonGroup } from '@material-ui/lab';
 import List from './List';
 import { Title, SubTitle, SelectContainer } from '../Styled';
+import { Options, Sort, FilterType } from '../data/index';
 
 // ENHANCE values mirrored (duplicated)
 // inputs need event to read / write seems redundant
-let page: number = 1;
-let filterType: string = 'ge';
-let filterAmount: number = 100;
-let sort: string = 'asc';
+//let page: number = 1;
+//let filterType: string = 'ge';
+//let filterAmount: number = 100;
+//let sort: string = 'asc';
+const options: Options = {
+  page: 1,
+  filter: {
+    type: FilterType.ge,
+    amount: 100,
+  },
+  sort: Sort.asc,
+};
 
 const StyledToggleButtonGroup = withStyles((theme: Theme) => ({
   grouped: {
@@ -25,10 +34,10 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 function PageSelect() {
-  const [value, setValue] = React.useState<number>(page);
+  const [value, setValue] = React.useState<number>(options.page as number);
   const onChange = (event: any) => {
-    page = Number(event.target.value);
-    setValue(page);
+    options.page = Number(event.target.value);
+    setValue(options.page);
   }
   return (
     <SelectContainer>
@@ -41,15 +50,15 @@ function PageSelect() {
 }
 
 function FilterSelect() {
-  const [type, setType] = React.useState<string>(filterType);
-  const [amount, setAmount] = React.useState<number>(filterAmount);
-  const onTypeChange = (event: any, value: string) => {
-    filterType = value;
+  const [type, setType] = React.useState<FilterType>(options.filter?.type as FilterType);
+  const [amount, setAmount] = React.useState<number>(options.filter?.amount as number);
+  const onTypeChange = (event: any, value: FilterType) => {
+    if (options.filter) options.filter.type = FilterType[value];
     setType(value);
   }
   const onAmountChange = (event: any) => {
-    filterAmount = Number(event.target.value);
-    setAmount(filterAmount);
+    if (options.filter) options.filter.amount = Number(event.target.value);
+    if (options.filter) setAmount(options.filter.amount);
   }
   return (
     <SelectContainer>
@@ -84,9 +93,9 @@ function FilterSelect() {
 }
 
 function SortSelect() {
-  const [value, setValue] = React.useState<string>(sort);
-  const onChange = (event: any, value: string) => {
-    sort = value;
+  const [value, setValue] = React.useState<Sort>(options.sort as Sort);
+  const onChange = (event: any, value: Sort) => {
+    options.sort = Sort[value];
     setValue(value);
   }
   return (
@@ -117,10 +126,11 @@ export default function Home() {
 
   const onClick = () => {
     console.log('onClick()');
-    console.log('page: ', page);
+    /*console.log('page: ', page);
     console.log('filterType: ', filterType);
     console.log('filterAmount: ', filterAmount);
-    console.log('sort: ', sort);
+    console.log('sort: ', sort);*/
+    console.log('options: ', options);
     setDate(Date.now());
   };
 
@@ -146,7 +156,7 @@ export default function Home() {
           </Button>
         </Toolbar>
       </AppBar>
-      <List page={page} filterType={filterType} filterAmount={filterAmount} sort={sort} />
+      <List options={options} />
     </React.Fragment >
   );
 }
